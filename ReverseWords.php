@@ -98,13 +98,13 @@ class ReverseWords
                 \array_unshift($aReversedWord, $letter);
             }
 
+            // добавляем знак препинания, который был в начале слова
+            '' !== $l ? \array_unshift($aReversedWord, $l) : null;
+
             // делаем прописными буквы там, где они были прописные
             foreach ($aUpperCaseIndexes as $index) {
                 $aReversedWord[$index] = IntlChar::toupper($aReversedWord[$index]);
             }
-
-            // добавляем знак препинания, который был в начале слова
-            \array_unshift($aReversedWord, $l);
 
         } catch (\Throwable $th) {
             throw new LogicException($th->getMessage());
