@@ -19,7 +19,7 @@ class ReverseWords
      */
     public function reverseWordsInPhrase(string $phrase): string
     {
-        if (preg_match('/[^(\w'.self::PUNCT_MARKS.'-`\s)]|\d/iu', $phrase)) {
+        if (\preg_match('/[^(\w'.self::PUNCT_MARKS.'-`\s)]|\d/iu', $phrase)) {
             throw new Exception('Ошибка входных данных. Ожидалась строка из букв и знаков препинания '.self::PUNCT_MARKS);
         }
 
@@ -28,24 +28,29 @@ class ReverseWords
             $aReversedPhrase = [];
 
             foreach ($aComplexWords as $complexWord) {
+                $pattern = '';
+
+                // есть ли внутри слова разделитель - апостроф или дефис
+                if (\preg_match('/`/', $complexWord)) {
+                    $pattern = '`';
+                } elseif ((\preg_match('/-/', $complexWord))) {
+                    $pattern = '-';
+                }
+
                 $array = [];
                 $string = '';
 
-                if (preg_match('/`/', $complexWord)) {
-                    foreach (\explode('`', $complexWord) as $word) {
+                // разворачиваем слово (или слова, если в слове есть разделители)
+                if ('' !== $pattern) {
+                    foreach (\explode($pattern, $complexWord) as $word) {
                         \array_push($array, $this->reverseWord($word));
                     }
-                    $string = \implode('`', $array);
-
-                } elseif (preg_match('/-/', $complexWord)) {
-                    foreach (\explode('-', $complexWord) as $word) {
-                        \array_push($array, $this->reverseWord($word));
-                    }
-                    $string = \implode('-', $array);
-
+                    $string = \implode($pattern, $array);
                 } else {
                     $string = $this->reverseWord($complexWord);
                 }
+
+                // добавляем слово в итоговую фразу
                 \array_push($aReversedPhrase, $string);
             }
 
@@ -65,14 +70,17 @@ class ReverseWords
     public function reverseWord(string $word): string
     {
         try {
-            $aLetters = preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
+            $aLetters = \preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY);
             $aReversedWord = [];
             $aUpperCaseIndexes = [];
             $l = '';
 
+            // перебираем буквы в слове
             foreach ($aLetters as $key => $letter) {
-                if (preg_match('/^['.self::PUNCT_MARKS.']/', $letter)) {
-                    if (0 === $key && preg_match('/^['.self::PUNCT_MARKS.']/', $letter)) {
+                // обработка встреченных знаков препинания
+                if (\preg_match('/^['.self::PUNCT_MARKS.']/', $letter)) {
+                    // если есть знак препинания в начале слова, запоминаем его
+                    if (0 === $key && \preg_match('/^['.self::PUNCT_MARKS.']/', $letter)) {
                         $l = $letter;
                     } else {
                         \array_push($aReversedWord, $letter);
@@ -80,18 +88,22 @@ class ReverseWords
                     continue;
                 }
 
+                // если буква прописная, запоминаем место и делаем ее строчной
                 if (IntlChar::isupper($letter)) {
                     \array_push($aUpperCaseIndexes, $key);
                     $letter = IntlChar::tolower($letter);
                 }
 
+                // добавляем букву в итоговый массив слова
                 \array_unshift($aReversedWord, $letter);
             }
 
+            // делаем прописными буквы там, где они были прописные
             foreach ($aUpperCaseIndexes as $index) {
                 $aReversedWord[$index] = IntlChar::toupper($aReversedWord[$index]);
             }
 
+            // добавляем знак препинания, который был в начале слова
             \array_unshift($aReversedWord, $l);
 
         } catch (\Throwable $th) {
