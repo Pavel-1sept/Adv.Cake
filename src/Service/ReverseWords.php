@@ -9,7 +9,7 @@ use IntlChar;
 
 class ReverseWords
 {
-    private const PUNCT_MARKS = '!?;:.,«»"';
+    public const PUNCT_MARKS = '!?;:.,«»"';
 
     /**
      * Разворачивает слова внутри фразы
@@ -44,7 +44,7 @@ class ReverseWords
                 if ('' !== $pattern) {
                     foreach (\explode($pattern, $complexWord) as $word) {
                         if (\preg_match('/-|`/', $word)) {
-                            throw new Exception('Ошибка. Недопустимы два разделителя в одном слове');
+                            throw new Exception('Не поддерживаются два разделителя в одном слове - '. $word);
                         }
                         \array_push($array, $this->reverseWord($word));
                     }
