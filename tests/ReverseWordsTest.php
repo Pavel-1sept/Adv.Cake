@@ -142,7 +142,7 @@ class ReverseWordsTest extends TestCase
     {
         $this->assertEquals('olleh-dlrow tset`tset', $this->reverseWords->reverseWordsInPhrase('hello-world test`test'));
         $this->assertEquals('Olleh-Dlrow Tset`Tset', $this->reverseWords->reverseWordsInPhrase('Hello-World Test`Test'));
-        
+
         $this->expectException(Exception::class);
         $this->reverseWords->reverseWordsInPhrase('hello-world`test');
     }
@@ -162,7 +162,7 @@ class ReverseWordsTest extends TestCase
      */
     public function testReverseWordsInPhraseWithNumbersThrowsException(): void
     {
-        $this->expectException(Exception::class);        
+        $this->expectException(Exception::class);
         $this->reverseWords->reverseWordsInPhrase('hello123world');
     }
 
